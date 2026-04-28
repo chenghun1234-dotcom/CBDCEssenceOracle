@@ -7,11 +7,11 @@ compatibility_date = "2024-04-28"
 binding = "GEPA_KV"
 id = "55cc389bb16e46648c1db97c4acb11c5"
 
-# D1 데이터베이스 설정 (Analytical Layer)
-[[d1_databases]]
-binding = "DB"
-database_name = "gepa-db"
-database_id = "5f269413-181b-436c-9407-7e6f85108f9c"
+# D1 데이터베이스 설정 (배포 에러 발생 시 아래 섹션을 주석 처리하세요)
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "gepa-db"
+# database_id = "5f269413-181b-436c-9407-7e6f85108f9c"
 
 # 기타 환경 변수
 [vars]
