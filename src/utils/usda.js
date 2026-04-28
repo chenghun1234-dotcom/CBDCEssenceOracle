@@ -2,39 +2,61 @@
  * USDA QuickStats API Utility
  */
 
-export async function fetchUSDAPrices(apiKey) {
-  // 예시: 옥수수(CORN)의 최신 가격 데이터를 가져오는 쿼리
-  // 실제 운영 시에는 더 구체적인 파라미터(sector, group, commodity 등)가 필요합니다.
+const COMMODITY_MAP = {
+  'CORN': { id: 'GRAIN_CORN', name: 'USDA 표준 옥수수', unit_conv: 25.4 }, // BU to kg approx
+  'WHEAT': { id: 'GRAIN_WHEAT', name: 'USDA 표준 밀', unit_conv: 27.2 },
+  'SOYBEANS': { id: 'GRAIN_SOYBEAN', name: 'USDA 표준 콩', unit_conv: 27.2 },
+  'RICE': { id: 'GRAIN_RICE', name: 'USDA 표준 쌀', unit_conv: 45.3 } // CWT to kg approx
+};
+
+export async function fetchUSDAPrices(apiKey, commoditySymbol = 'CORN') {
+  const config = COMMODITY_MAP[commoditySymbol];
+  if (!config) {
+    console.error(`Unsupported commodity symbol: ${commoditySymbol}`);
+    return null;
+  }
+
   const baseUrl = 'https://quickstats.nass.usda.gov/api/api_GET/';
   const params = new URLSearchParams({
     key: apiKey,
-    commodity_desc: 'CORN',
+    commodity_desc: commoditySymbol,
     statisticcat_desc: 'PRICE RECEIVED',
-    unit_desc: '$ / BU',
     freq_desc: 'MONTHLY',
     year__GE: '2023',
     format: 'JSON'
   });
+
+  // 쌀의 경우 단위가 다를 수 있음
+  if (commoditySymbol === 'RICE') {
+    params.append('unit_desc', '$ / CWT');
+  } else {
+    params.append('unit_desc', '$ / BU');
+  }
 
   try {
     const response = await fetch(`${baseUrl}?${params.toString()}`);
     const data = await response.json();
     
     if (data.data && data.data.length > 0) {
-      // 가장 최근 데이터 추출
+      // 가장 최근 데이터 추출 (보통 첫 번째 항목)
       const latest = data.data[0];
+      const rawPrice = parseFloat(latest.Value.replace(/,/g, ''));
+      
       return {
-        id: "GRAIN_CORN",
-        name: "USDA 표준 옥수수",
-        price_upu: parseFloat(latest.Value.replace(/,/g, '')) / 25.4, // BU 단위를 kg 단위로 대략적 변환
+        id: config.id,
+        name: config.name,
+        price_upu: rawPrice / config.unit_conv,
         unit: "kg",
-        trend: "stable", // API 응답에 따라 로직 추가 가능
-        source: "USDA QuickStats"
+        trend: "stable",
+        source: "USDA QuickStats",
+        updated_at: new Date().toISOString()
       };
     }
     return null;
   } catch (error) {
-    console.error('USDA API Fetch Error:', error);
+    console.error(`USDA API Fetch Error for ${commoditySymbol}:`, error);
     return null;
   }
 }
+
+export const SUPPORTED_USDA_COMMODITIES = Object.keys(COMMODITY_MAP);
