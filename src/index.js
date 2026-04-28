@@ -9,8 +9,20 @@ export default {
     const exchangeInfo = await getExchangeRates(env);
     const rate = exchangeInfo.rates[currency] || 1350; // 환율 정보가 없으면 기본값 1350 사용
 
-    // 2. KV에서 최신 데이터 가져오기 (없으면 빈 배열)
+    // 2. KV에서 최신 데이터 및 FAO 지수 가져오기
     let data = await env.GEPA_KV.get("LATEST_PRICES", { type: "json" }) || [];
+    let faoIndex = await env.GEPA_KV.get("FAO_INDEX", { type: "json" });
+
+    // FAO 지수가 없으면 초기 샘플 데이터 생성
+    if (!faoIndex) {
+      faoIndex = {
+        index_value: 118.3,
+        month: "April 2026",
+        trend: "down",
+        description: "Global food prices show a slight decline led by cereal and dairy."
+      };
+      await env.GEPA_KV.put("FAO_INDEX", JSON.stringify(faoIndex));
+    }
 
     // 3. 필수 기본 품목 및 USDA 품목 정의 (English Localization)
     const defaultItems = [
@@ -55,7 +67,11 @@ export default {
       service: "CBDC Global Price AI",
       timestamp: new Date().toISOString(),
       base_currency: currency,
+      exchange_rate: rate,
       exchange_source: exchangeInfo.source || "Default",
+      global_indicators: {
+        fao_food_price_index: faoIndex
+      },
       data: finalData
     }), {
       headers: {
