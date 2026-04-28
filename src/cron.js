@@ -25,7 +25,7 @@ export async function handleScheduled(event, env, ctx) {
         currentPrices.push(usdaData);
       }
 
-      // D1 저장 (Analytical Layer)
+      // D1 저장 (Analytical Layer) - DB 바인딩이 있을 경우에만 실행
       if (env.DB) {
         try {
           await env.DB.prepare(`

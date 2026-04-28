@@ -7,12 +7,6 @@ compatibility_date = "2024-04-28"
 binding = "GEPA_KV"
 id = "55cc389bb16e46648c1db97c4acb11c5"
 
-# D1 데이터베이스 설정 (분석 레이어)
-[[d1_databases]]
-binding = "DB"
-database_name = "gepa-db"
-database_id = "5f269413-181b-436c-9407-7e6f85108f9c" # 이전 세션에서 확인된 ID
-
 # 기타 환경 변수
 [vars]
 ENVIRONMENT = "production"
