@@ -3,10 +3,10 @@
  */
 
 const COMMODITY_MAP = {
-  'CORN': { id: 'GRAIN_CORN', name: 'USDA 표준 옥수수', unit_conv: 25.4 }, // BU to kg approx
-  'WHEAT': { id: 'GRAIN_WHEAT', name: 'USDA 표준 밀', unit_conv: 27.2 },
-  'SOYBEANS': { id: 'GRAIN_SOYBEAN', name: 'USDA 표준 콩', unit_conv: 27.2 },
-  'RICE': { id: 'GRAIN_RICE', name: 'USDA 표준 쌀', unit_conv: 45.3 } // CWT to kg approx
+  'CORN': { id: 'GRAIN_CORN', name: 'USDA Standard Corn', unit_conv: 25.4 }, // BU to kg approx
+  'WHEAT': { id: 'GRAIN_WHEAT', name: 'USDA Standard Wheat', unit_conv: 27.2 },
+  'SOYBEANS': { id: 'GRAIN_SOYBEAN', name: 'USDA Standard Soybeans', unit_conv: 27.2 },
+  'RICE': { id: 'GRAIN_RICE', name: 'USDA Standard Rice', unit_conv: 45.3 } // CWT to kg approx
 };
 
 export async function fetchUSDAPrices(apiKey, commoditySymbol = 'CORN') {

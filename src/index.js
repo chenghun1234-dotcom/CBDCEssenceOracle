@@ -12,22 +12,29 @@ export default {
     // 2. KV에서 최신 데이터 가져오기 (없으면 빈 배열)
     let data = await env.GEPA_KV.get("LATEST_PRICES", { type: "json" }) || [];
 
-    // 3. 필수 기본 품목 및 USDA 품목 정의
+    // 3. 필수 기본 품목 및 USDA 품목 정의 (English Localization)
     const defaultItems = [
-      { id: "MEAT_BEEF", name: "호주산 소고기 안심", price_upu: 24.50, unit: "kg", trend: "up" },
-      { id: "MEAT_PORK", name: "미국산 돼지고기 삼겹", price_upu: 12.20, unit: "kg", trend: "down" },
-      { id: "VEG_ONION", name: "국내산 햇양파", price_upu: 3.10, unit: "kg", trend: "stable" },
-      { id: "FRUIT_APPLE", name: "글로벌 표준 부사", price_upu: 4.50, unit: "kg", trend: "up" },
-      { id: "GRAIN_CORN", name: "USDA 표준 옥수수", price_upu: 0.18, unit: "kg", trend: "stable", source: "USDA QuickStats" },
-      { id: "GRAIN_WHEAT", name: "USDA 표준 밀", price_upu: 0.22, unit: "kg", trend: "stable", source: "USDA QuickStats" }
+      { id: "MEAT_BEEF", name: "Australian Beef Tenderloin", price_upu: 24.50, unit: "kg", trend: "up" },
+      { id: "MEAT_PORK", name: "U.S. Pork Belly", price_upu: 12.20, unit: "kg", trend: "down" },
+      { id: "VEG_ONION", name: "Domestic Fresh Onions", price_upu: 3.10, unit: "kg", trend: "stable" },
+      { id: "FRUIT_APPLE", name: "Global Standard Fuji Apple", price_upu: 4.50, unit: "kg", trend: "up" },
+      { id: "GRAIN_CORN", name: "USDA Standard Corn", price_upu: 0.18, unit: "kg", trend: "stable", source: "USDA QuickStats" },
+      { id: "GRAIN_WHEAT", name: "USDA Standard Wheat", price_upu: 0.22, unit: "kg", trend: "stable", source: "USDA QuickStats" }
     ];
 
-    // 기존 데이터에 누락된 품목이 있으면 추가 (자동 병합)
+    // 기존 데이터 업데이트 또는 병합
     let isUpdated = false;
     for (const item of defaultItems) {
-      if (!data.some(existing => existing.id === item.id)) {
+      const existingIndex = data.findIndex(existing => existing.id === item.id);
+      if (existingIndex === -1) {
         data.push(item);
         isUpdated = true;
+      } else {
+        // 기존 데이터가 한국어일 경우 영어로 업데이트
+        if (data[existingIndex].name !== item.name) {
+          data[existingIndex] = { ...data[existingIndex], ...item };
+          isUpdated = true;
+        }
       }
     }
 
@@ -40,7 +47,7 @@ export default {
       ...item,
       local_price: Math.round(item.price_upu * rate),
       currency: currency,
-      ai_insight: item.trend === "up" ? "공급량 감소로 상승세" : "수급 안정적"
+      ai_insight: item.trend === "up" ? "Rising trend due to supply shortage" : "Supply remains stable"
     }));
 
     return new Response(JSON.stringify({
