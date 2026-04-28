@@ -1,0 +1,85 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "CBDC Global Price AI",
+    "description": "Global commodity prices indexed in CBDC (KRW-C, EUR-C) with AI insights and FAO/USDA data integration.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://cbdcessenceracle.wpbb1004.workers.dev",
+      "description": "Production server"
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "Get latest commodity prices",
+        "description": "Returns the latest prices for major commodities converted to the requested CBDC currency, including global food indices.",
+        "parameters": [
+          {
+            "name": "currency",
+            "in": "query",
+            "description": "The target CBDC currency for price conversion (e.g., KRW-C, EUR-C, USD-C)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "KRW-C"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response with price data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string" },
+                    "service": { "type": "string" },
+                    "timestamp": { "type": "string", "format": "date-time" },
+                    "base_currency": { "type": "string" },
+                    "exchange_rate": { "type": "number" },
+                    "exchange_source": { "type": "string" },
+                    "global_indicators": {
+                      "type": "object",
+                      "properties": {
+                        "fao_food_price_index": {
+                          "type": "object",
+                          "properties": {
+                            "index_value": { "type": "number" },
+                            "month": { "type": "string" },
+                            "trend": { "type": "string" },
+                            "description": { "type": "string" }
+                          }
+                        }
+                      }
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "name": { "type": "string" },
+                          "price_upu": { "type": "number" },
+                          "unit": { "type": "string" },
+                          "trend": { "type": "string" },
+                          "local_price": { "type": "number" },
+                          "currency": { "type": "string" },
+                          "ai_insight": { "type": "string" },
+                          "source": { "type": "string" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
